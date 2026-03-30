@@ -11,7 +11,7 @@ from data_processing import (
 # ── 페이지 설정 ───────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="이호진 | 고객 이탈 분석 포트폴리오",
-    page_icon="🎵",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -57,23 +57,23 @@ header {visibility: hidden;}
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🎵 분석 설정")
+    st.markdown("## 분석 설정")
     st.markdown("---")
 
     data_source = st.radio(
-        "📊 데이터 소스",
+        "데이터 소스",
         ["원본 데이터 (30명)", "합성 데이터 (500명)"],
         index=1,
         help="합성 데이터는 원본 패턴을 유지하며 통계적 검정력을 높이기 위해 500명으로 확대한 데이터입니다."
     )
 
     st.markdown("---")
-    st.markdown("### 📌 분석 목차")
+    st.markdown("### 분석 목차")
     st.markdown("""
 - **1탭** 개요 & 핵심 요약
 - **2탭** 사용자 분포 분석
 - **3탭** 통계 검정 (카이제곱 · 로지스틱)
-- **4탭** 생존 분석 (Kaplan-Meier)
+- **4탭** 구독 유지율 분석 (Kaplan-Meier)
 - **5탭** 고급 시각화
 - **6탭** 원본 데이터
 """)
@@ -81,9 +81,9 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
 <small>
-📁 Data: Maven Music<br>
-👤 이호진 | 통계분석 포트폴리오<br>
-📅 2026
+Data: Maven Music<br>
+이호진 | 통계분석 포트폴리오<br>
+2026
 </small>
 """, unsafe_allow_html=True)
 
@@ -113,7 +113,7 @@ overall_cancel     = customers['Cancelled'].mean()
 # ── 헤더 ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div style="text-align:center; padding:32px 0 20px 0;">
-    <h1 style="font-size:42px; margin-bottom:8px;">🎵 음악 앱 고객 이탈 패턴 분석</h1>
+    <h1 style="font-size:42px; margin-bottom:8px;">음악 앱 고객 이탈 패턴 분석</h1>
     <h3 style="color:#666; font-weight:normal; margin-bottom:6px;">
         Maven Music Customer Churn Analysis Report
     </h3>
@@ -126,12 +126,12 @@ st.markdown(f"""
 
 # ── 탭 구조 ───────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📋 개요 & 핵심 요약",
-    "👥 사용자 분포",
-    "📊 통계 검정",
-    "📈 생존 분석",
-    "🔍 고급 시각화",
-    "🗂️ 원본 데이터",
+    "개요 & 핵심 요약",
+    "사용자 분포",
+    "통계 검정",
+    "구독 유지율 분석",
+    "고급 시각화",
+    "원본 데이터",
 ])
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -153,7 +153,7 @@ with tab1:
 
     st.markdown(f"""
 <div class="insight">
-<strong>🔑 핵심 발견</strong><br>
+<strong>핵심 발견</strong><br>
 • 할인 제공 고객의 취소율이 정가 고객 대비 <strong>{cancel_rate_disc/cancel_rate_nodisc:.1f}배 높음</strong>
   ({cancel_rate_disc:.1%} vs {cancel_rate_nodisc:.1%})<br>
 • 세션 활동이 많을수록 취소 가능성 낮아짐 (로지스틱 회귀 확인)<br>
@@ -187,7 +187,7 @@ with tab1:
 
     st.markdown("""
 <div class="warning-box">
-<strong>⚠️ 비즈니스 함의</strong><br>
+<strong>비즈니스 함의</strong><br>
 할인 프로모션은 신규 고객 유입에는 효과적이나, 이탈 방지에는 역효과.<br>
 가격 민감 고객층을 유입하고 있으며, 할인 종료 후 대규모 이탈 위험이 있음.
 </div>
@@ -259,7 +259,7 @@ with tab2:
 
     st.markdown("""
 <div class="insight">
-<strong>💡 발견</strong><br>
+<strong>발견</strong><br>
 • 유지 고객의 세션 수가 취소 고객에 비해 현저히 높음<br>
 • Pop 장르가 가장 많이 청취되며, 팟캐스트(Comedy, True Crime)가 그 뒤를 이음
 </div>
@@ -285,10 +285,10 @@ with tab3:
     col4.metric("Cramer's V (효과 크기)", f"{chi['cramers_v']:.4f}")
 
     sig_color = "#2ca02c" if chi['significant'] else "#d62728"
-    sig_text  = "✅ 귀무가설 기각 — 유의미한 관계 존재" if chi['significant'] else "❌ 귀무가설 채택 — 유의미한 관계 없음"
+    sig_text  = "귀무가설 기각 — 유의미한 관계 존재" if chi['significant'] else "귀무가설 채택 — 유의미한 관계 없음"
     st.markdown(f"""
 <div class="stat-result">
-<strong>🔬 검정 결과</strong>: <span style="color:{sig_color}; font-size:17px;"><b>{sig_text}</b></span><br>
+<strong>검정 결과</strong>: <span style="color:{sig_color}; font-size:17px;"><b>{sig_text}</b></span><br>
 p-value = {chi['p_value']:.6f} (α = 0.05)<br>
 Cramer's V = {chi['cramers_v']:.4f} — {'강한' if chi['cramers_v'] > 0.3 else '중간' if chi['cramers_v'] > 0.1 else '약한'} 연관성
 </div>
@@ -375,7 +375,7 @@ Cramer's V = {chi['cramers_v']:.4f} — {'강한' if chi['cramers_v'] > 0.3 else
 
     st.markdown(f"""
 <div class="stat-result">
-<strong>📊 로지스틱 회귀 해석</strong><br>
+<strong>로지스틱 회귀 해석</strong><br>
 • <b>할인 여부</b>: OR = {lr['odds_ratios'][0]:.3f} — 할인 고객은 이탈 가능성 {lr['odds_ratios'][0]:.1f}배 높음 (p&lt;0.001)<br>
 • <b>세션 수</b>: OR = {lr['odds_ratios'][1]:.4f} — 세션 수 증가 시 이탈 가능성 대폭 감소 (p&lt;0.001)<br>
 • <b>Pop/팟캐스트 비율</b>: 통계적으로 유의하지 않음 (장르 자체보다 이용 빈도가 더 중요)
@@ -386,9 +386,9 @@ Cramer's V = {chi['cramers_v']:.4f} — {'강한' if chi['cramers_v'] > 0.3 else
 # TAB 4 — 생존 분석
 # ══════════════════════════════════════════════════════════════════════════════
 with tab4:
-    st.markdown('<p class="section-title">Kaplan-Meier 생존 분석</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">구독 유지율 분석 (Kaplan-Meier)</p>', unsafe_allow_html=True)
     st.markdown("""
-**생존 분석**은 "이탈까지 얼마나 걸리는가"를 분석합니다.
+**구독 유지율 분석**은 "이탈까지 얼마나 걸리는가"를 분석합니다.
 - **T**: 가입일로부터 이탈(또는 관측 종료)까지의 일수
 - **E**: 이탈 발생 여부 (1=이탈, 0=관측 종료)
 - **음영**: 95% 신뢰구간
@@ -397,7 +397,7 @@ with tab4:
     surv = compute_survival_data(customers)
 
     if not surv:
-        st.warning("생존 분석을 위한 데이터가 부족합니다.")
+        st.warning("분석을 위한 데이터가 부족합니다.")
     else:
         fig = go.Figure()
         for seg, v in surv.items():
@@ -425,10 +425,10 @@ with tab4:
                 )
 
         fig.update_layout(
-            title='세그먼트별 구독 생존 곡선 (Kaplan-Meier)<br>'
+            title='세그먼트별 구독 유지율 곡선 (Kaplan-Meier)<br>'
                   '<sub>곡선이 빠르게 떨어질수록 이탈이 일찍 발생</sub>',
             xaxis_title='가입 후 경과 일수',
-            yaxis_title='생존 확률 (구독 유지율)',
+            yaxis_title='구독 유지율',
             yaxis=dict(range=[0, 1.05], tickformat='.0%'),
             legend=dict(x=0.65, y=0.95),
             height=480,
@@ -436,7 +436,7 @@ with tab4:
         st.plotly_chart(fig, use_container_width=True)
 
         # 중앙 생존 시간 요약
-        st.markdown("**세그먼트별 중앙 생존 시간 (Median Survival Time)**")
+        st.markdown("**세그먼트별 중앙 구독 유지 기간 (Median Survival Time)**")
         surv_summary = []
         for seg, v in surv.items():
             median_str = f"{v['median']:.0f}일" if not np.isinf(v['median']) else "관측 기간 내 미도달 (>50% 유지)"
@@ -451,7 +451,7 @@ with tab4:
 
         st.markdown("""
 <div class="stat-result">
-<strong>📈 생존 분석 해석</strong><br>
+<strong>구독 유지율 분석 해석</strong><br>
 • <b>Premium 할인 ($7.99)</b>: 중앙 생존 시간 약 27일 — 가입 후 한 달 내 절반이 이탈<br>
 • <b>Basic & Premium 정가</b>: 관측 기간(~180일) 내 50% 이탈에 미도달 — 장기 유지 경향<br>
 • 할인 고객의 생존 곡선이 가장 가파르게 하락 → 이탈 속도가 현저히 빠름
@@ -488,7 +488,7 @@ with tab5:
 
     st.markdown("""
 <div class="insight">
-<strong>💡 해석</strong> 유지 고객은 세션 수가 많고 분포가 넓은 반면,
+<strong>해석</strong> 유지 고객은 세션 수가 많고 분포가 넓은 반면,
 취소 고객은 낮은 세션 수에 밀집 — 앱 사용 빈도가 이탈의 핵심 예측 변수
 </div>
 """, unsafe_allow_html=True)
@@ -539,7 +539,7 @@ with tab5:
 
     st.markdown("""
 <div class="insight">
-<strong>💡 코호트 해석</strong><br>
+<strong>코호트 해석</strong><br>
 • 5월 코호트(할인 프로모션 대상)의 취소율이 3-4월 코호트 대비 압도적으로 높음<br>
 • Basic 플랜의 취소율은 월별로 비교적 안정적 → 할인 프로모션의 영향이 이탈의 핵심
 </div>
@@ -563,7 +563,7 @@ with tab6:
 st.markdown("---")
 st.markdown("""
 <p style="text-align:center; color:#888; font-size:13px;">
-🎵 Maven Music Customer Churn Analysis | 이호진 통계분석 포트폴리오 | 2026<br>
+Maven Music Customer Churn Analysis | 이호진 통계분석 포트폴리오 | 2026<br>
 분석 도구: Python · Streamlit · Plotly · Scipy · Lifelines · Scikit-learn
 </p>
 """, unsafe_allow_html=True)
