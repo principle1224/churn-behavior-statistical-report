@@ -9,6 +9,7 @@ from lifelines import KaplanMeierFitter
 # ── 공통 전처리 로직 ──────────────────────────────────────────────────────────
 
 def _clean_customers(customers):
+    customers = customers.copy()
     customers['Member Since'] = pd.to_datetime(customers['Member Since'])
     rate_col = customers['Subscription Rate'].astype(str).str.replace('$', '', regex=False).str.strip()
     customers['Subscription Rate'] = pd.to_numeric(rate_col, errors='coerce')
@@ -58,15 +59,23 @@ def _build_model_df(customers, df):
     model_df = customers[['Customer ID', 'Cancelled', 'Discount?']].copy()
     model_df = model_df.merge(number_of_sessions, how='left', on='Customer ID')
 
-    if 'Pop' in df_audio.columns:
-        model_df['Percent Pop'] = df_audio['Pop'] / df_audio['Total Audio'] * 100
+    # Customer ID 기준 merge로 위치 기반 할당 버그 방지
+    pop_cols = [c for c in ['Pop', 'Total Audio'] if c in df_audio.columns]
+    if 'Pop' in pop_cols:
+        model_df = model_df.merge(df_audio[['Customer ID', 'Pop', 'Total Audio']],
+                                  how='left', on='Customer ID')
+        model_df['Percent Pop'] = model_df['Pop'] / model_df['Total Audio'] * 100
+        model_df = model_df.drop(columns=['Pop', 'Total Audio'])
     else:
         model_df['Percent Pop'] = 0.0
 
     podcast_cols = [c for c in ['Comedy', 'True Crime'] if c in df_audio.columns]
     if podcast_cols:
-        model_df['Percent Podcasts'] = (df_audio[podcast_cols].sum(axis=1) /
-                                        df_audio['Total Audio'] * 100)
+        podcast_df = df_audio[['Customer ID'] + podcast_cols + ['Total Audio']].copy()
+        podcast_df['Percent Podcasts'] = (podcast_df[podcast_cols].sum(axis=1) /
+                                          podcast_df['Total Audio'] * 100)
+        model_df = model_df.merge(podcast_df[['Customer ID', 'Percent Podcasts']],
+                                  how='left', on='Customer ID')
     else:
         model_df['Percent Podcasts'] = 0.0
 
@@ -156,7 +165,8 @@ def run_logistic_regression(model_df):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    model = LogisticRegression(max_iter=1000, random_state=42)
+    # C=np.inf → 정규화 없음 (순수 MLE): p-value·CI를 Fisher 정보 행렬로 계산할 때 편향 방지
+    model = LogisticRegression(max_iter=1000, random_state=42, C=np.inf)
     model.fit(X_scaled, y)
 
     coefs = model.coef_[0]
