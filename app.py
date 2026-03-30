@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from data_processing import (
-    load_and_process_data, load_synthetic_data,
+    load_synthetic_data,
     run_chi_square_test, run_logistic_regression, compute_survival_data
 )
 
@@ -59,15 +59,6 @@ header {visibility: hidden;}
 with st.sidebar:
     st.markdown("## 분석 설정")
     st.markdown("---")
-
-    data_source = st.radio(
-        "데이터 소스",
-        ["원본 데이터 (30명)", "합성 데이터 (500명)"],
-        index=1,
-        help="합성 데이터는 원본 패턴을 유지하며 통계적 검정력을 높이기 위해 500명으로 확대한 데이터입니다."
-    )
-
-    st.markdown("---")
     st.markdown("### 분석 목차")
     st.markdown("""
 - **1탭** 개요 & 핵심 요약
@@ -89,19 +80,10 @@ Data: Maven Music<br>
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 @st.cache_data
-def get_original():
-    return load_and_process_data()
-
-@st.cache_data
 def get_synthetic():
     return load_synthetic_data()
 
-if data_source == "원본 데이터 (30명)":
-    customers, listening_history, audio_all, sessions, df, model_df, genres = get_original()
-    data_label = "원본 (30명)"
-else:
-    customers, listening_history, audio_all, sessions, df, model_df, genres = get_synthetic()
-    data_label = "합성 (500명)"
+customers, listening_history, audio_all, sessions, df, model_df, genres = get_synthetic()
 
 # 공통 통계
 discount_yes = customers[customers['Discount?'] == 1]
@@ -117,10 +99,6 @@ st.markdown(f"""
     <h3 style="color:#666; font-weight:normal; margin-bottom:6px;">
         Maven Music Customer Churn Analysis Report
     </h3>
-    <span style="background:#e8f4fd; padding:4px 14px; border-radius:20px;
-                 font-size:14px; color:#1f77b4; border:1px solid #1f77b4;">
-        현재 데이터: {data_label}
-    </span>
 </div>
 """, unsafe_allow_html=True)
 
